@@ -3,7 +3,9 @@
 Only Simplified Chinese and English are currently supported.
 Other operating-system UI languages deliberately fall back to English.
 """
-from PySide6.QtCore import QLocale
+import ctypes
+import locale
+import sys
 
 MESSAGES = {
     "zh": {
@@ -167,7 +169,13 @@ def resolve_language(preference: str = "auto", system_ui_languages=None) -> str:
     if preference in ("zh", "en"):
         return preference
     if system_ui_languages is None:
-        system_ui_languages = QLocale.system().uiLanguages()
+        if sys.platform == "win32":
+            # Windows user interface language (not display formats or region).
+            # LANG_CHINESE has the primary language identifier 0x04.
+            langid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+            return "zh" if langid & 0x03ff == 0x04 else "en"
+        language = locale.getlocale()[0] or "en"
+        system_ui_languages = [language]
     primary = (system_ui_languages or ["en"])[0]
     return "zh" if primary.replace("_", "-").lower().startswith("zh") else "en"
 

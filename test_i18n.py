@@ -52,6 +52,14 @@ class LanguageTests(unittest.TestCase):
         self.assertEqual(resolve_language("en",["zh-CN"]),"en")
         self.assertEqual(resolve_language("unknown",["zh-CN"]),"zh")
 
+    def test_windows_ui_language_api(self):
+        from unittest.mock import patch
+        for langid, expected in ((0x0804, "zh"), (0x0404, "zh"),
+                                 (0x0409, "en"), (0x0407, "en")):
+            with patch("i18n.ctypes.windll.kernel32.GetUserDefaultUILanguage",
+                       return_value=langid):
+                self.assertEqual(resolve_language("auto"), expected)
+
     def test_complete_dictionaries(self):
         self.assertEqual(set(MESSAGES["zh"]),set(MESSAGES["en"]))
         for key in MESSAGES["zh"]:
