@@ -1,0 +1,23 @@
+name: Windows tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Download verified models
+        run: uv run --python 3.11 --with-requirements requirements.txt python models.py
+      - name: Compile Python sources
+        run: uv run --python 3.11 --with-requirements requirements.txt python -m compileall -q .
+      - name: Test presence debounce
+        run: uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py
+      - name: Smoke test model and Windows integration
+        run: uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
+      - name: Simulated camera worker test
+        run: uv run --python 3.11 --with-requirements requirements.txt python test_camera_worker.py

@@ -1,0 +1,39 @@
+# Python environments, cache, binaries
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.spec
+
+# Downloaded model weights (provided by OpenCV Zoo)
+models/
+*.onnx
+*.part
+
+# Local identity templates, settings, logs and secrets
+face.dat
+face.dat.tmp
+settings.json
+*.log
+*.env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,5 @@
+# Python 3.11 or 3.12 recommended
+opencv-contrib-python>=4.9,<5
+numpy>=1.26,<3
+PySide6-Essentials>=6.6,<7
+pywin32>=306
