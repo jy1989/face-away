@@ -348,6 +348,35 @@ class FaceAway(QMainWindow):
 def main():
     if sys.platform != "win32":
         raise SystemExit("This MVP supports Windows only.")
+    if "--self-test" in sys.argv:
+        # Safe packaged-build smoke test: no webcam, no window minimization.
+        import os
+        from pathlib import Path
+        import tempfile
+        from face_engine import FaceEngine
+        import numpy as np
+        log = Path(tempfile.gettempdir()) / "FaceAway-self-test.log"
+        def checkpoint(stage):
+            log.open("a", encoding="utf-8").write(stage + "\n")
+        log.write_text("start\n", encoding="utf-8")
+        checkpoint("checking bundled model hashes")
+        assert models_ready(), "Bundled model weights missing or invalid"
+        checkpoint("loading OpenCV inference")
+        assert FaceEngine().detect(np.zeros((480, 640, 3), dtype=np.uint8)) == []
+        checkpoint("passed inference")
+        # Test the actual Windows Qt event loop (without webcam or monitoring).
+        os.environ.pop("QT_QPA_PLATFORM", None)
+        from PySide6.QtCore import QTimer
+        checkpoint("creating QApplication")
+        test_app = QApplication([])
+        checkpoint("creating FaceAway window without webcam")
+        test_window = FaceAway(start_worker=False)
+        assert not test_window.armed
+        checkpoint("running Qt event loop")
+        QTimer.singleShot(300, test_window.exit_program)
+        test_app.exec()
+        checkpoint("passed")
+        return
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     window = FaceAway()

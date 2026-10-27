@@ -23,6 +23,12 @@
 - **首次安装**需要联网安装依赖、下载人脸模型；日常识别无需联网。
 - 不需要显卡，也不需要自己训练模型。主要依赖 Python 3.11、PySide6 Essentials、OpenCV、NumPy、pywin32。
 
+## 单文件 Windows EXE
+
+先运行一次 `setup.bat`，之后双击 `build_exe.bat`，可以打包成 **无命令行窗口的单文件** `dist/FaceAway.exe`。目前实测构建约 **132 MiB**（已包含两个人脸模型）。其他电脑可以直接双击 EXE，不必安装 Python，也不用保留 BAT；原来本机 `%LOCALAPPDATA%/FaceAway/` 下的加密人脸特征仍可以使用。
+
+PyInstaller 单文件运行时会先将内部原生库解压到临时目录，因此启动可能稍慢。构建结果暂未进行代码签名，Windows SmartScreen 可能提示未知发布者。使用 EXE 前，请先从托盘退出旧版 Python 程序，避免两个版本同时监控桌面。
+
 ## 安装与启动
 
 ```powershell

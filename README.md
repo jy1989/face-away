@@ -22,6 +22,12 @@
 - Internet only for the **initial** Python package and pretrained ONNX model download.
 - No GPU, model training, or cloud account required. Dependencies include Python 3.11, PySide6 Essentials, OpenCV, NumPy, and pywin32.
 
+## Standalone Windows EXE
+
+You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway.exe` (about **132 MiB** in the current Windows build, including both models). Double-click `FaceAway.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
+
+PyInstaller one-file binaries unpack native dependencies into a temporary directory at launch, so startup can be slower than a folder-style install. The EXE is generated locally and is not code-signed; Windows SmartScreen may warn about an unknown publisher. Do not run a second copy while the existing Python app is monitoring the desktop.
+
 ## Getting started
 
 ```powershell
