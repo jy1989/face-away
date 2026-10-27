@@ -8,7 +8,7 @@ import time
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QImage, QPixmap
 from PySide6.QtWidgets import (
-    QApplication, QDoubleSpinBox, QHBoxLayout, QLabel, QMainWindow,
+    QApplication, QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel, QMainWindow,
     QMenu, QMessageBox, QPushButton, QStyle, QSystemTrayIcon, QVBoxLayout,
     QWidget,
 )
@@ -52,6 +52,7 @@ class FaceAway(QMainWindow):
         self.latest_image = None
         self.windows = WindowManager()
         settings = load_settings()
+        self.auto_monitor_on_startup = bool(settings.get("auto_monitor_on_startup", True))
         self.gate = PresenceGate(
             away_seconds=float(settings.get("away_seconds", 3)),
             return_seconds=float(settings.get("return_seconds", 1)),
@@ -146,7 +147,12 @@ class FaceAway(QMainWindow):
         config.addWidget(self.return_input)
         root.addLayout(config)
 
-        note = QLabel("默认暂停监控。关闭设置窗口后缩到托盘；右键托盘可随时停止监控或恢复窗口。\n只在本机识别，不上传照片。普通摄像头人脸识别不能代替 Windows 锁屏。")
+        self.autostart_checkbox = QCheckBox("启动后自动开启监控（默认开启）")
+        self.autostart_checkbox.setChecked(self.auto_monitor_on_startup)
+        self.autostart_checkbox.toggled.connect(self.save_settings)
+        root.addWidget(self.autostart_checkbox)
+
+        note = QLabel("已经录入人脸时，启动后自动监控；也可随时通过托盘暂停。\n只在本机识别，不上传照片。普通摄像头人脸识别不能代替 Windows 锁屏。")
         note.setWordWrap(True)
         note.setStyleSheet("color: #778aa3; font-size: 11px;")
         root.addWidget(note)
@@ -216,14 +222,18 @@ class FaceAway(QMainWindow):
             SETTINGS_FILE.write_text(json.dumps({
                 "away_seconds": self.gate.away_seconds,
                 "return_seconds": self.gate.return_seconds,
+                "auto_monitor_on_startup": self.autostart_checkbox.isChecked(),
             }, indent=2), encoding="utf-8")
         except OSError:
             pass
 
     def on_ready(self):
         self.worker_ready = True
-        if self.profile is not None:
-            self.set_status("已录入人脸 · 监控尚未开启", "现在可以开始监控；摄像头预览会更流畅。")
+        if self.profile is not None and self.autostart_checkbox.isChecked():
+            self.set_monitoring(True)
+            self.set_status("启动成功 · 已自动开启监控", "后台识别人脸中；可通过按钮或托盘菜单暂停。")
+        elif self.profile is not None:
+            self.set_status("已录入人脸 · 监控尚未开启", "自动监控已在设置中关闭，可手动开始。")
         else:
             self.set_status("准备就绪 · 请拍一张正面照片", "只存加密的人脸特征，不保存照片。")
         self.refresh_controls()
@@ -276,7 +286,12 @@ class FaceAway(QMainWindow):
             save_embedding(template)
             self.profile = template
             self.worker.set_profile(template)
-            self.set_status("录入成功", "只保存 Windows DPAPI 加密的人脸特征向量；现在可以开始监控。")
+            if self.autostart_checkbox.isChecked() and self.worker_ready:
+                self.set_monitoring(True)
+                self.set_status("录入成功 · 已自动开启监控",
+                                "只保存 Windows DPAPI 加密的人脸特征；可通过托盘暂停。")
+            else:
+                self.set_status("录入成功", "人脸特征已保存。点击“开始监控”即可使用。")
         except Exception as exc:
             QMessageBox.warning(self, "录入失败", str(exc))
         self.refresh_controls()

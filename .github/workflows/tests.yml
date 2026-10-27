@@ -16,7 +16,7 @@ jobs:
       - name: Compile Python sources
         run: uv run --python 3.11 --with-requirements requirements.txt python -m compileall -q .
       - name: Test presence debounce
-        run: uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py
+        run: uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py test_auto_monitor.py
       - name: Smoke test model and Windows integration
         run: uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
       - name: Simulated camera worker test

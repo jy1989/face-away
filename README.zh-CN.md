@@ -14,7 +14,7 @@
 - **尽量保留原状态**：原本已最小化的窗口不会主动恢复；尽量保持正常、最大化和窗口位置状态。
 - **更流畅的预览**：独立 Qt 工作线程采集摄像头，目标约 15 FPS；每约 700ms 执行一次识别。界面缩到托盘后减少预览开销。
 - **完全本地处理**：摄像头画面、人脸匹配均在本机运行；用 Windows DPAPI 加密特征向量。
-- **托盘控制**：暂停或启用监控、手动恢复窗口、退出程序；支持修改离开/返回判断时间。
+- **启动自动监控（默认开启）**：已经录入人脸时，启动后会自动开始监控；设置界面可以取消勾选。首次未录入时不会自动隐藏窗口，拍照录入成功后开始监控。\n- **托盘控制**：暂停或启用监控、手动恢复窗口、退出程序；支持修改离开/返回判断时间。
 
 ## 运行要求
 
@@ -25,7 +25,7 @@
 
 ## 单文件 Windows EXE
 
-先运行一次 `setup.bat`，之后双击 `build_exe.bat`，可以打包成 **无命令行窗口的单文件** `dist/FaceAway.exe`。目前实测构建约 **132 MiB**（已包含两个人脸模型）。其他电脑可以直接双击 EXE，不必安装 Python，也不用保留 BAT；原来本机 `%LOCALAPPDATA%/FaceAway/` 下的加密人脸特征仍可以使用。
+先运行一次 `setup.bat`，之后双击 `build_exe.bat`，可以打包成 **无命令行窗口的单文件** `dist/FaceAway-v0.2.exe`。目前实测构建约 **132 MiB**（已包含两个人脸模型）。其他电脑可以直接双击 EXE，不必安装 Python，也不用保留 BAT；原来本机 `%LOCALAPPDATA%/FaceAway/` 下的加密人脸特征仍可以使用。
 
 PyInstaller 单文件运行时会先将内部原生库解压到临时目录，因此启动可能稍慢。构建结果暂未进行代码签名，Windows SmartScreen 可能提示未知发布者。使用 EXE 前，请先从托盘退出旧版 Python 程序，避免两个版本同时监控桌面。
 
@@ -42,7 +42,7 @@ cd face-away
 
 1. 打开后等待摄像头画面出现。
 2. 首次使用点击 **「拍一张照片录入 / 重录」**。请正对摄像头，确保画面中只有自己的一张清晰人脸。
-3. 点击 **「开始监控」**。程序**默认不自动启用监控**，每次重启后也需手动启用。
+3. **默认启动自动开启监控**，不需要再按「开始监控」。已经有录入的人脸时，模型就绪后自动开始；首次录入成功后也会自动开始。取消勾选 **「启动后自动开启监控（默认开启）」** 可关闭这项设置。
 4. 可以点击 **「收起到托盘」**。右键托盘图标可暂停监控、手动恢复窗口、退出。
 5. **更新版本前**先通过托盘菜单退出旧版，再双击 `run.bat`。已经录入的人脸不会丢失，无需重新拍照。
 
@@ -78,7 +78,7 @@ cd face-away
 ## 测试
 
 ```powershell
-uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py
+uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py test_auto_monitor.py
 uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
 uv run --python 3.11 --with-requirements requirements.txt python test_camera_worker.py
 uv run --python 3.11 --with-requirements requirements.txt python -m compileall -q .

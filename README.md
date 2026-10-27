@@ -13,7 +13,7 @@
 - **Remember window state:** preserve already-minimized windows, and try to restore prior normal/maximized placements.
 - **Smooth preview:** up to ~15 FPS camera preview and face matching about every 700 ms on a dedicated Qt worker thread, with lower overhead when hidden in the tray.
 - **Local-first:** all camera frames and face recognition run locally. The facial template is protected with Windows DPAPI.
-- **Tray controls:** pause/resume, restore windows on demand, exit, and adjust away/return delays.
+- **Auto-monitor on launch (enabled by default):** when a face is enrolled, monitoring activates after startup initialization. The checkbox in settings can disable this preference. First-time users without a face template are never armed until enrollment succeeds.\n- **Tray controls:** pause/resume, restore windows on demand, exit, and adjust away/return delays.
 
 ## Requirements
 
@@ -24,7 +24,7 @@
 
 ## Standalone Windows EXE
 
-You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway.exe` (about **132 MiB** in the current Windows build, including both models). Double-click `FaceAway.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
+You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway-v0.2.exe` (about **132 MiB** in the current Windows build, including both models). Double-click `FaceAway-v0.2.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
 
 PyInstaller one-file binaries unpack native dependencies into a temporary directory at launch, so startup can be slower than a folder-style install. The EXE is generated locally and is not code-signed; Windows SmartScreen may warn about an unknown publisher. Do not run a second copy while the existing Python app is monitoring the desktop.
 
@@ -41,7 +41,7 @@ Or, if working from the existing local project, just double-click `run.bat`. Run
 
 1. Open the app and wait for the webcam preview.
 2. Click **拍一张照片录入 / 重录** (Enroll / retake one photo) once. Face the camera alone and in reasonable lighting.
-3. Click **开始监控** (Start monitoring). Monitoring is **off by default**, including after a restart.
+3. **Monitoring starts automatically by default** if your face is already enrolled. On first enrollment, monitoring begins after the face is saved. To disable automatic monitoring on subsequent launches, uncheck **启动后自动开启监控（默认开启）** (Start monitoring automatically). You can always pause from the tray.
 4. Optionally hide settings to the system tray. Right-click the tray icon to pause, restore windows, or quit.
 5. To update the code, **exit the previous FaceAway process first** and start again with `run.bat`. Enrollment is retained; you do not have to retake your photo.
 
@@ -77,7 +77,7 @@ The camera worker keeps capture and inference off the UI thread. Video frames ar
 ## Tests
 
 ```powershell
-uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py
+uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py test_auto_monitor.py
 uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
 uv run --python 3.11 --with-requirements requirements.txt python test_camera_worker.py
 uv run --python 3.11 --with-requirements requirements.txt python -m compileall -q .
