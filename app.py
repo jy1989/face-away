@@ -9,8 +9,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QImage, QPixmap
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel, QMainWindow,
-    QMenu, QMessageBox, QPushButton, QStyle, QSystemTrayIcon, QVBoxLayout,
-    QWidget,
+    QFrame, QMenu, QMessageBox, QPushButton, QScrollArea, QSizePolicy,
+    QStyle, QSystemTrayIcon, QVBoxLayout, QWidget,
 )
 
 from camera_worker import CameraWorker
@@ -33,8 +33,8 @@ class FaceAway(QMainWindow):
     def __init__(self, start_worker: bool = True):
         super().__init__()
         self.setWindowTitle("FaceAway · 人离开，桌面自动收起")
-        self.resize(650, 610)
-        self.setMinimumSize(560, 500)
+        self.resize(760, 780)
+        self.setMinimumSize(560, 520)
         self.setStyleSheet("""
             QMainWindow, QWidget { background: #131822; color: #eff3fc; }
             QLabel { color: #eff3fc; }
@@ -84,11 +84,17 @@ class FaceAway(QMainWindow):
         self.refresh_controls()
 
     def _build_ui(self):
+        # Scrollable form prevents clipped controls at 125%-200% Windows DPI.
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setCentralWidget(scroll)
         panel = QWidget()
-        self.setCentralWidget(panel)
+        scroll.setWidget(panel)
         root = QVBoxLayout(panel)
-        root.setSpacing(13)
-        root.setContentsMargins(24, 20, 24, 20)
+        root.setSpacing(10)
+        root.setContentsMargins(24, 22, 24, 22)
 
         title = QLabel("FaceAway")
         title.setStyleSheet("font-size: 29px; font-weight: 700; color: #b4d1ff;")
@@ -99,9 +105,13 @@ class FaceAway(QMainWindow):
 
         self.preview = QLabel("等待摄像头画面")
         self.preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.preview.setMinimumHeight(255)
-        self.preview.setStyleSheet("background: #080e19; color: #98a8ba; border: 1px solid #34405a; border-radius: 10px;")
-        root.addWidget(self.preview, 1)
+        # A QLabel pixmap changes sizeHint() dynamically. Its former expanding
+        # policy could make the next layout pass place text over the preview.
+        self.preview.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.preview.setFixedHeight(270)
+        self.preview.setScaledContents(False)
+        self.preview.setStyleSheet("background: #080e19; color: #98a8ba; border: 1px solid #34405a; border-radius: 12px;")
+        root.addWidget(self.preview)
 
         self.status = QLabel("初始化中…")
         self.status.setWordWrap(True)
@@ -109,8 +119,16 @@ class FaceAway(QMainWindow):
         self.detail = QLabel("")
         self.detail.setWordWrap(True)
         self.detail.setStyleSheet("color: #9eafc7; font-size: 12px;")
-        root.addWidget(self.status)
-        root.addWidget(self.detail)
+        status_card = QFrame(panel)
+        self.status_card = status_card
+        status_card.setObjectName("statusCard")
+        status_card.setStyleSheet("QFrame#statusCard { background: #1e2b3d; border: 1px solid #334963; border-radius: 10px; }")
+        card_layout = QVBoxLayout(status_card)
+        card_layout.setSpacing(5)
+        card_layout.setContentsMargins(16, 11, 16, 11)
+        card_layout.addWidget(self.status)
+        card_layout.addWidget(self.detail)
+        root.addWidget(status_card)
 
         row = QHBoxLayout()
         self.enroll_btn = QPushButton("拍一张照片录入 / 重录")
@@ -156,6 +174,7 @@ class FaceAway(QMainWindow):
         note.setWordWrap(True)
         note.setStyleSheet("color: #778aa3; font-size: 11px;")
         root.addWidget(note)
+        root.addStretch(1)
 
     def _build_tray(self):
         icon = self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)

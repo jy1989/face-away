@@ -12,6 +12,7 @@
 - **Presence-aware desktop:** minimize visible normal windows after ~3 seconds away; attempt restoration after ~1 second of confirming your face.
 - **Remember window state:** preserve already-minimized windows, and try to restore prior normal/maximized placements.
 - **Smooth preview:** up to ~15 FPS camera preview and face matching about every 700 ms on a dedicated Qt worker thread, with lower overhead when hidden in the tray.
+- **Responsive layout:** the camera preview has a stable height, and settings scroll safely on compact displays or with Windows display scaling.
 - **Local-first:** all camera frames and face recognition run locally. The facial template is protected with Windows DPAPI.
 - **Auto-monitor on launch (enabled by default):** when a face is enrolled, monitoring activates after startup initialization. The checkbox in settings can disable this preference. First-time users without a face template are never armed until enrollment succeeds.\n- **Tray controls:** pause/resume, restore windows on demand, exit, and adjust away/return delays.
 
@@ -20,11 +21,11 @@
 - Windows 10/11 and a working webcam.
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (available in the development environment).
 - Internet only for the **initial** Python package and pretrained ONNX model download.
-- No GPU, model training, or cloud account required. Dependencies include Python 3.11, PySide6 Essentials, OpenCV, NumPy, and pywin32.
+- No GPU, model training, or cloud account required. Dependencies include Python 3.11, PySide6 Essentials, the standard (non-contrib) OpenCV package, NumPy, and pywin32.
 
 ## Standalone Windows EXE
 
-You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway-v0.2.exe` (about **132 MiB** in the current Windows build, including both models). Double-click `FaceAway-v0.2.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
+You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway-v0.2.exe` (about **120 MiB** in the current Windows build, including both models). Double-click `FaceAway-v0.2.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
 
 PyInstaller one-file binaries unpack native dependencies into a temporary directory at launch, so startup can be slower than a folder-style install. The EXE is generated locally and is not code-signed; Windows SmartScreen may warn about an unknown publisher. Do not run a second copy while the existing Python app is monitoring the desktop.
 
