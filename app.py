@@ -5,7 +5,7 @@ import json
 import sys
 import time
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QImage, QPixmap
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QDoubleSpinBox, QHBoxLayout, QLabel, QMainWindow,
@@ -455,7 +455,11 @@ class FaceAway(QMainWindow):
             self.worker.stop()
             self.worker.wait(10000)
         self.tray.hide()
-        QApplication.instance().quit()
+        self.close()
+        self.tray.deleteLater()
+        self.deleteLater()
+        # Let Qt process deferred deletions before the application stops.
+        QTimer.singleShot(30, QApplication.instance().quit)
 
 
 def main():
