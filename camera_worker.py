@@ -103,7 +103,7 @@ class CameraWorker(QThread):
                     camera = self._open_camera()
                     if camera is None:
                         if not notified_missing:
-                            self.camera_lost.emit("未找到摄像头，或摄像头正被其他程序占用。")
+                            self.camera_lost.emit("camera_unavailable")
                             notified_missing = True
                         self._stop.wait(0.15)
                         continue
@@ -114,7 +114,7 @@ class CameraWorker(QThread):
                     camera = None
                     last_retry = time.monotonic()
                     if not notified_missing:
-                        self.camera_lost.emit("摄像头读取中断。")
+                        self.camera_lost.emit("camera_interrupted")
                         notified_missing = True
                     continue
                 notified_missing = False
@@ -126,7 +126,7 @@ class CameraWorker(QThread):
                     try:
                         faces = engine.detect(frame)
                         if len(faces) != 1:
-                            self.enrollment_failed.emit("请确保镜头前只有一张清晰的正面人脸。")
+                            self.enrollment_failed.emit("single_face_required")
                         else:
                             self.enrolled.emit(engine.embedding(frame, faces[0]))
                     except Exception as exc:

@@ -19,6 +19,8 @@ jobs:
         run: uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py test_auto_monitor.py
       - name: Smoke test model and Windows integration
         run: uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
+      - name: Test languages and live switching
+        run: uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_i18n.py
       - name: Verify GUI layout at different sizes
         run: uv run --python 3.11 --with-requirements requirements.txt python test_layout.py
       - name: Simulated camera worker test

@@ -15,7 +15,9 @@
 - **更流畅的预览**：独立 Qt 工作线程采集摄像头，目标约 15 FPS；每约 700ms 执行一次识别。界面缩到托盘后减少预览开销。
 - **响应式布局**：摄像头预览与状态区固定分离，小窗口或高 DPI 缩放时可滚动查看设置，避免控件重叠。
 - **完全本地处理**：摄像头画面、人脸匹配均在本机运行；用 Windows DPAPI 加密特征向量。
-- **启动自动监控（默认开启）**：已经录入人脸时，启动后会自动开始监控；设置界面可以取消勾选。首次未录入时不会自动隐藏窗口，拍照录入成功后开始监控。\n- **托盘控制**：暂停或启用监控、手动恢复窗口、退出程序；支持修改离开/返回判断时间。
+- **中英文界面**：默认跟随 Windows 系统显示语言；中文系统显示简体中文，其他语言系统显示英文。可在「界面语言」里切换「跟随系统 / 简体中文 / English」，立即生效并记住选择。
+- **启动自动监控（默认开启）**：已经录入人脸时，启动后会自动开始监控；设置界面可以取消勾选。首次未录入时不会自动隐藏窗口，拍照录入成功后开始监控。
+- **托盘控制**：暂停或启用监控、手动恢复窗口、退出程序；支持修改离开/返回判断时间。
 
 ## 运行要求
 
@@ -26,7 +28,7 @@
 
 ## 单文件 Windows EXE
 
-先运行一次 `setup.bat`，之后双击 `build_exe.bat`，可以打包成 **无命令行窗口的单文件** `dist/FaceAway-v0.2.exe`。目前实测构建约 **120 MiB**（已包含两个人脸模型）。其他电脑可以直接双击 EXE，不必安装 Python，也不用保留 BAT；原来本机 `%LOCALAPPDATA%/FaceAway/` 下的加密人脸特征仍可以使用。
+先运行一次 `setup.bat`，之后双击 `build_exe.bat`，可以打包成 **无命令行窗口的单文件** `dist/FaceAway-v0.4.exe`。目前实测构建约 **120 MiB**（已包含两个人脸模型）。其他电脑可以直接双击 EXE，不必安装 Python，也不用保留 BAT；原来本机 `%LOCALAPPDATA%/FaceAway/` 下的加密人脸特征仍可以使用。
 
 PyInstaller 单文件运行时会先将内部原生库解压到临时目录，因此启动可能稍慢。构建结果暂未进行代码签名，Windows SmartScreen 可能提示未知发布者。使用 EXE 前，请先从托盘退出旧版 Python 程序，避免两个版本同时监控桌面。
 
@@ -67,6 +69,7 @@ cd face-away
 ## 隐私与局限
 
 - 人脸模板路径：`%LOCALAPPDATA%\FaceAway\face.dat`，由 Windows DPAPI 加密，仅当前 Windows 账户可解密。
+- 界面语言设定：默认为 `auto` 跟随 Windows 系统界面语言，也可手动指定 `zh` / `en`；保存在 `%LOCALAPPDATA%\\FaceAway\\settings.json`。
 - 设置文件：`%LOCALAPPDATA%\FaceAway\settings.json`。
 - 原始照片与摄像头视频：**不保存**。
 - 目前没有登录、云上传、数据分析或遥测功能。
@@ -82,6 +85,7 @@ cd face-away
 uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py test_auto_monitor.py
 uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
 uv run --python 3.11 --with-requirements requirements.txt python test_camera_worker.py
+uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_i18n.py
 uv run --python 3.11 --with-requirements requirements.txt python -m compileall -q .
 ```
 
@@ -92,6 +96,7 @@ uv run --python 3.11 --with-requirements requirements.txt python -m compileall -
 | 文件 | 用途 |
 |---|---|
 | `app.py` | PySide6 界面、托盘、程序状态 |
+| `i18n.py` | Windows 系统界面语言检测、中英文实时切换 |
 | `camera_worker.py` | 摄像头后台采集和人脸识别 |
 | `face_engine.py` | YuNet / SFace 模型处理 |
 | `presence.py` | 离开和返回时间判断 |

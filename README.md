@@ -14,7 +14,9 @@
 - **Smooth preview:** up to ~15 FPS camera preview and face matching about every 700 ms on a dedicated Qt worker thread, with lower overhead when hidden in the tray.
 - **Responsive layout:** the camera preview has a stable height, and settings scroll safely on compact displays or with Windows display scaling.
 - **Local-first:** all camera frames and face recognition run locally. The facial template is protected with Windows DPAPI.
-- **Auto-monitor on launch (enabled by default):** when a face is enrolled, monitoring activates after startup initialization. The checkbox in settings can disable this preference. First-time users without a face template are never armed until enrollment succeeds.\n- **Tray controls:** pause/resume, restore windows on demand, exit, and adjust away/return delays.
+- **Bilingual interface:** automatically choose Simplified Chinese for a Chinese system UI and English otherwise. Change instantly under **Language → Follow system / 简体中文 / English**; the preference persists.
+- **Auto-monitor on launch (enabled by default):** when a face is enrolled, monitoring activates after startup initialization. The checkbox in settings can disable this preference. First-time users without a face template are never armed until enrollment succeeds.
+- **Tray controls:** pause/resume, restore windows on demand, exit, and adjust away/return delays.
 
 ## Requirements
 
@@ -25,7 +27,7 @@
 
 ## Standalone Windows EXE
 
-You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway-v0.2.exe` (about **120 MiB** in the current Windows build, including both models). Double-click `FaceAway-v0.2.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
+You can build a single **console-free** executable with `build_exe.bat` after running `setup.bat` once. Output: `dist/FaceAway-v0.4.exe` (about **120 MiB** in the current Windows build, including both models). Double-click `FaceAway-v0.4.exe` directly: **no BAT window or Python installation is needed on the destination PC**. It uses the same encrypted face profile stored under `%LOCALAPPDATA%/FaceAway/`.
 
 PyInstaller one-file binaries unpack native dependencies into a temporary directory at launch, so startup can be slower than a folder-style install. The EXE is generated locally and is not code-signed; Windows SmartScreen may warn about an unknown publisher. Do not run a second copy while the existing Python app is monitoring the desktop.
 
@@ -68,6 +70,7 @@ The camera worker keeps capture and inference off the UI thread. Video frames ar
 ## Privacy and security
 
 - Facial embedding: `%LOCALAPPDATA%\FaceAway\face.dat` — encrypted by Windows DPAPI for the current Windows account.
+- UI language preference: `auto` (default), `zh`, or `en`, stored in `%LOCALAPPDATA%\\FaceAway\\settings.json`. Chinese Windows UI defaults to Simplified Chinese; all other Windows UI languages default to English.
 - Delay settings: `%LOCALAPPDATA%\FaceAway\settings.json`.
 - Enrollment photo and webcam frames: **not saved**.
 - No login, analytics, telemetry, or photo uploads are implemented.
@@ -81,6 +84,7 @@ The camera worker keeps capture and inference off the UI thread. Video frames ar
 uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_presence.py test_auto_monitor.py
 uv run --python 3.11 --with-requirements requirements.txt python smoke_test.py
 uv run --python 3.11 --with-requirements requirements.txt python test_camera_worker.py
+uv run --python 3.11 --with-requirements requirements.txt python -m unittest -v test_i18n.py
 uv run --python 3.11 --with-requirements requirements.txt python -m compileall -q .
 ```
 
@@ -91,6 +95,7 @@ The simulated-camera test measures throughput without triggering window minimiza
 | File | Purpose |
 |---|---|
 | `app.py` | Qt desktop UI, tray, application state |
+| `i18n.py` | System UI language detection and live Chinese / English translations |
 | `camera_worker.py` | Background webcam capture and recognition |
 | `face_engine.py` | YuNet + SFace detection/embedding |
 | `presence.py` | Away/return timing state machine |
