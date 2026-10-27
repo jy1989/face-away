@@ -42,7 +42,8 @@ class FaceAway(QMainWindow):
             QPushButton { background: #34435b; border-radius: 7px; padding: 11px 14px; font-size: 14px; }
             QPushButton:hover { background: #475d79; }
             QPushButton:disabled { background: #26303e; color: #8692a6; }
-            QDoubleSpinBox, QComboBox { background: #232e41; color: white; border: 1px solid #50617b; border-radius: 5px; padding: 6px; }\n            QComboBox QAbstractItemView { background: #232e41; color: white; selection-background-color: #475d79; }
+            QDoubleSpinBox, QComboBox { background: #232e41; color: white; border: 1px solid #50617b; border-radius: 5px; padding: 6px; }
+            QComboBox QAbstractItemView { background: #232e41; color: white; selection-background-color: #475d79; }
         """)
         self.armed = False
         self.exiting = False
@@ -124,10 +125,10 @@ class FaceAway(QMainWindow):
 
         self.status = QLabel()
         self.status.setWordWrap(True)
-        self.status.setStyleSheet("font-size: 17px; font-weight: 600;")
+        self.status.setStyleSheet("background: transparent; border: none; font-size: 17px; font-weight: 600;")
         self.detail = QLabel("")
         self.detail.setWordWrap(True)
-        self.detail.setStyleSheet("color: #9eafc7; font-size: 12px;")
+        self.detail.setStyleSheet("background: transparent; border: none; color: #9eafc7; font-size: 12px;")
         status_card = QFrame(panel)
         self.status_card = status_card
         status_card.setObjectName("statusCard")

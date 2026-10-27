@@ -11,10 +11,10 @@ if not exist "models\face_recognition_sface_2021dec.onnx" (
   pause
   exit /b 1
 )
-echo Building FaceAway-v0.4.exe (Windows, single file, no console)...
+echo Building FaceAway-v0.4.1.exe (Windows, single file, no console)...
 uv run --python 3.11 --with-requirements requirements.txt --with "pyinstaller>=6.10,<7" python -m PyInstaller ^
   --noconfirm --clean --onefile --windowed ^
-  --name "FaceAway-v0.4" ^
+  --name "FaceAway-v0.4.1" ^
   --add-data "models;models" ^
   --exclude-module "tkinter" ^
   app.py
@@ -24,6 +24,6 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo Finished: "%~dp0dist\FaceAway-v0.4.exe"
+echo Finished: "%~dp0dist\FaceAway-v0.4.1.exe"
 echo You can double-click the EXE. No Python / BAT / console required.
 pause

@@ -33,6 +33,22 @@ def verify(size):
 for size in [(760, 780), (620, 630), (560, 520)]:
     verify(size)
 
+# Regress the two dark bars from QLabel's inherited QWidget background.
+# Text labels must paint their status card's surface, not a separate fill.
+ui.resize(760, 780)
+ui.set_status("status.monitoring_owner", "detail.similarity", score=0.83)
+qt.processEvents()
+card_image = ui.status_card.grab().toImage()
+for item in (ui.status, ui.detail):
+    y = item.geometry().center().y()
+    fill = card_image.pixelColor(item.geometry().right() - 25, y)
+    card_surface = card_image.pixelColor(8, y)
+    assert fill == card_surface, (
+        "Status label painted an unintended background stripe",
+        fill.name(), card_surface.name(),
+    )
+print("PASS: status text has transparent background and no dark bars")
+
 ui.exiting = True
 ui.tray.hide()
 ui.close()
